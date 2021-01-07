@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "@types/node": "^14.14.20",
     "antd": "3.26.19",
+    "axios": "^0.21.1",
     "babel-plugin-import": "1.12.2",
     "customize-cra": "0.9.1",
     "less": "3.10.3",
