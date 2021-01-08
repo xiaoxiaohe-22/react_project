@@ -1,9 +1,11 @@
-import  React,{Component} from "react"; //注意这里不是解构赋值
+import React,{Component} from 'react'
 
-export  default  class Admin extends Component{
-    render() {
-        return (
-            <h1>admin</h1>
-        );
-    }
+export default class Admin extends Component{
+  render(){
+    return (
+      <div>
+        Admin
+      </div>
+    )
+  }
 }
