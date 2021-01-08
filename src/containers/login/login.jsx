@@ -1,17 +1,38 @@
 import React,{Component} from 'react'
 import {Form,Icon,Input,Button,message} from 'antd';
+import {connect} from 'react-redux'
+import {Redirect} from 'react-router-dom'
+import {createSaveUserInfoAction} from '../../redux/action_creators/login_action'
+import {reqLogin} from '../../api'
 import './css/login.less'
 import logo from './imgs/logo.png'
 const {Item} = Form
+
 
 class Login extends Component{
 
   //点击登录按钮的回调
   handleSubmit = (event)=>{
-    event.preventDefault();//阻止默认事件--禁止form表单提交---通过ajax发送
-    this.props.form.validateFields((err, values) => {
+    //阻止默认事件--禁止form表单提交---通过ajax发送
+    event.preventDefault();
+    //表单的统一验证
+    this.props.form.validateFields(async(err, values) => {
+      //获取用户输入
+      const {username,password} = values
       if(!err){
-        alert('向服务器发送登录请求')
+        //若用户输入无错误，发送登录请求
+        let result = await reqLogin(username,password)
+        //从响应中获取：请求状态、错误信息、数据
+        const {status,msg,data} = result
+        if(status === 0){
+          //1.服务器返回的user信息，还有token交由redux管理
+          this.props.saveUserInfo(data)
+          //2.跳转admin页面
+          this.props.history.replace('/admin')
+        }else{
+          //若登录失败
+          message.warning(msg,1)
+        }
       }else{
         message.error('表单输入有误，请检查！')
       }
@@ -35,6 +56,12 @@ class Login extends Component{
 
   render(){
     const {getFieldDecorator} = this.props.form;
+    //从redux中获取用户的登录状态
+    const {isLogin} = this.props;
+    //如果已经登录了，重定向到admin页面
+    if(isLogin){
+      return <Redirect to="/admin"/>
+    }
     return (
       <div className="login">
         <header>
@@ -92,40 +119,12 @@ class Login extends Component{
   }
 }
 
-/* 严重注意：
-    1.暴露的根本不是我们定义的Login组件，而是经过加工（包装）的Login组件。
-    2.Form.create()调用返回一个函数，该函数加工了Login组件，生成了一个新组件，新组件实例对象的props多了一个强大的form属性，能完成验证。
-    3.我们暴露出去的不再是Login，而是通过Login生成的一个新组件。 
-*/
-export default Form.create()(Login)
+//从redux中获取state和操作state的方法
+export default connect(
+  state => ({isLogin:state.userInfo.isLogin}),
+  {
+    saveUserInfo:createSaveUserInfoAction,
+  }
+)(Form.create()(Login))
 
-/* 
-  总结：
-    1. 高阶函数
-      定义: 如果函数接收的参数是函数或者返回值是函数
-      例子: Promise() / then() / 定时器 / 数组遍历相关方法 / bind() / $() / $.get() / Form.create()
-      好处: 更加动态, 更加具有扩展性
-      
-    2. 高阶组件
-      定义: 参数为组件，返回值为新组件的函数
-      例子: Form.create()(组件) / withRouter(组件) / connect()(组件)
-      与高阶函数的关系?  
-          高阶组件是一个特别的高阶函数
-          接收的是组件函数, 同时返回新的组件函数
-      作用:
-          React 中用于复用组件逻辑的一种高级技巧
-
-    Form.create()(Login), 接收一个Form组件, 返回一个新组件
-      Form.create = function () {
-        const form = 创建一个强大form对象
-        return function (FormComponent) {
-          return class WrapComponent extends Component {
-            render () {
-              return <Login form={form}/>
-            }
-          }
-        }
-      }
-      const LoginWrap = Form.create()(Login)
-*/
 
