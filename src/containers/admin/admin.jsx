@@ -1,8 +1,19 @@
 import React,{Component} from 'react'
 import {Redirect} from 'react-router-dom'
+import {Layout} from "antd"
 import {createDeleteUserInfoAction} from '../../redux/action_creators/login_action'
 import {connect} from 'react-redux'
+import "./css/admin.less"
+import Header from "./header/header"
 
+const { Footer, Sider, Content } = Layout;
+
+@connect(
+    state => ({userInfo:state.userInfo}),
+    {
+      deleteUserInfo:createDeleteUserInfoAction
+    }
+)
 class Admin extends Component{
 
   //退出登录的回调
@@ -10,7 +21,9 @@ class Admin extends Component{
     //触发redux删除所保存的用户信息
     this.props.deleteUserInfo()
   }
-  
+
+
+
   //在render里，若想实现跳转，最好用<Redirect>
   render(){
     //从redux中获取user和isLogin
@@ -18,21 +31,18 @@ class Admin extends Component{
     if(!isLogin){
       return <Redirect to="/login"/>
     }else{
-      console.log('登录了');
       return (
-        <div>
-          <div>我是Admin组件，你的名字是:{user.username}</div>
-          <button onClick={this.logout}>退出登录</button>
-        </div>
+          <Layout className="admin">
+              <Sider className="sider">Sider</Sider>
+              <Layout>
+                  <Header/>
+                  <Content className="content">Content</Content>
+                  <Footer className="footer">若想获得更好的浏览体验,请用谷歌浏览器</Footer>
+              </Layout>
+          </Layout>
       )
     }
   }
 }
 
-//从redux中获取状态和操作状态的方法
-export default connect(
-  state => ({userInfo:state.userInfo}),
-  {
-    deleteUserInfo:createDeleteUserInfoAction
-  }
-)(Admin)
+export default Admin;

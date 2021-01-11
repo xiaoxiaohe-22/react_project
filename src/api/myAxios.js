@@ -3,6 +3,7 @@ import {message} from 'antd'
 import NProgress from 'nprogress'
 import qs from 'querystring'
 import 'nprogress/nprogress.css'
+import store from "../redux/store"
 
 const instance = axios.create({
   timeout: 4000,//配置超时时间
@@ -12,8 +13,13 @@ const instance = axios.create({
 instance.interceptors.request.use((config)=> {
   //进度条开始
   NProgress.start()
+  const {token} = store.getState().userInfo;
+  if (token){
+    config.headers.Authorization = "atguigu_"+token;
+  }
+
   //从配置对象中获取method和data
-  const {method,data} = config 
+  const {method,data} = config ;
   //若是post请求
   if(method.toLowerCase() === 'post'){
     //若传递过来的参数是对象，转换成urlencoded形式

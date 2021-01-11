@@ -9,8 +9,14 @@ import logo from './imgs/logo.png'
 const {Item} = Form
 
 
+@connect(
+    state => ({isLogin:state.userInfo.isLogin}),
+    {
+      saveUserInfo:createSaveUserInfoAction,
+    }
+)
+@Form.create()
 class Login extends Component{
-
   //点击登录按钮的回调
   handleSubmit = (event)=>{
     //阻止默认事件--禁止form表单提交---通过ajax发送
@@ -119,12 +125,6 @@ class Login extends Component{
   }
 }
 
-//从redux中获取state和操作state的方法
-export default connect(
-  state => ({isLogin:state.userInfo.isLogin}),
-  {
-    saveUserInfo:createSaveUserInfoAction,
-  }
-)(Form.create()(Login))
+export default  Login;
 
 
